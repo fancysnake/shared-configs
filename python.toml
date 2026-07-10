@@ -52,7 +52,7 @@ run = "taplo lint --config=.taplo.toml"
 description = "Find dead Python code"
 run = "! vulture --config=pyproject.toml src | grep -v unused.variable"
 
-[_lint]
+[lint]
 description = "Run all linters"
 depends = [
     { task = "lint:taplo" },
