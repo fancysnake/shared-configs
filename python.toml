@@ -149,3 +149,19 @@ run = [
     { task = "test:py", args = ["-xvv"] },
     { task = "shitcheck" },
 ]
+
+[slowcheck]
+run = [
+    { task = "format:taplo" },
+    { task = "format:black" },
+    { task = "format:ruff" },
+    { task = "lint:taplo" },
+    { task = "lint:ruff" },
+    { task = "lint:import-linter" },
+    { task = "lint:codespell" },
+    { task = "format:black", args = ["--check"] },
+    { task = "lint:vulture" },
+    { task = "lint:mypy" },
+    { task = "lint:pylint", args = ["src"] },
+    { task = "lint:pylint", args = ["--disable=duplicate-code", "tests"] },
+]
