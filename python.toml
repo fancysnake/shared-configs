@@ -4,11 +4,11 @@
 
 ["format:black"]
 description = "Format Python code with Black"
-run = "black scripts src tests"
+run = "black {{ env.EXTRA_PATHS }} src tests"
 
 ["format:ruff"]
 description = "Lint Python with Ruff and auto-fix violations"
-run = "ruff check --fix scripts src tests"
+run = "ruff check --fix {{ env.EXTRA_PATHS }} src tests"
 
 ["format:taplo"]
 description = "Format TOML files"
@@ -26,7 +26,7 @@ run = [
 
 ["lint:codespell"]
 description = "Find typos in source and test files"
-run = "codespell scripts src tests/unit tests/integration"
+run = "codespell {{ env.EXTRA_PATHS }} src tests/unit tests/integration"
 
 ["lint:import-linter"]
 description = "Enforce GLIMPSE layer import rules"
@@ -42,7 +42,7 @@ description = "Run Pylint on source and tests (duplicate-code disabled for tests
 run = ["pylint"]
 
 ["lint:ruff"]
-run = ["ruff check --no-fix scripts src tests"]
+run = ["ruff check --no-fix {{ env.EXTRA_PATHS }} src tests"]
 
 ["lint:taplo"]
 description = "Format TOML files"
