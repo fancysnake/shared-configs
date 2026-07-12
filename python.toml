@@ -16,11 +16,7 @@ run = "taplo format --config=.taplo.toml"
 
 [format]
 description = "Run all formatters"
-run = [
-    { task = "format:taplo" },
-    { task = "format:black" },
-    { task = "format:ruff" },
-]
+run = [{ task = "format:taplo" }, { task = "format:black" }, { task = "format:ruff" }]
 
 ## Lint
 
@@ -37,9 +33,15 @@ description = "Type-check Python source with mypy"
 run = "mypy src"
 env = { _.file = '.env.test' }
 
-["lint:pylint"]
+["lint:_pylint"]
 description = "Run Pylint on source and tests (duplicate-code disabled for tests)"
 run = ["pylint"]
+
+["lint:pylint"]
+run = [
+    { task = "lint:_pylint", args = ["{{ env.EXTRA_PATHS }}", "src"] },
+    { task = "lint:_pylint", args = ["--disable=duplicate-code", "tests"] },
+]
 
 ["lint:ruff"]
 run = ["ruff check --no-fix {{ env.EXTRA_PATHS }} src tests"]
@@ -52,23 +54,22 @@ run = "taplo lint --config=.taplo.toml"
 description = "Find dead Python code"
 run = "! vulture --config=pyproject.toml src | grep -v unused.variable"
 
-[lint]
+["lint:py"]
 description = "Run all linters"
 depends = [
-    { task = "lint:taplo" },
-    { task = "lint:ruff" },
-    { task = "lint:import-linter" },
-    { task = "lint:codespell" },
-    { task = "format:black", args = ["--check"] },
-    { task = "lint:vulture" },
+    { task = "lint:pylint" },
     { task = "lint:mypy" },
-    { task = "lint:pylint", args = ["src"] },
-    { task = "lint:pylint", args = ["--disable=duplicate-code", "tests"] },
+    { task = "lint:vulture" },
+    { task = "format:black", args = ["--check"] },
+    { task = "lint:codespell" },
+    { task = "lint:import-linter" },
+    { task = "lint:ruff" },
+    { task = "lint:taplo" },
 ]
 
 ## Dependencies
 
-[update]
+["update:py"]
 description = "Update all dependencies: mise tools, pip, Poetry packages"
 run = [
     "mise upgrade",
@@ -140,28 +141,18 @@ run = [
     "scripts/shitcheck.sh 'nosec|noqa|pylint|pragma|\\.skip$|\\.xfail$|ANY' ':(glob)tests/**/*.py'",
 ]
 
-[check]
-run = [{ task = "format" }, { task = "lint" }]
+["check:py"]
+run = [{ task = "format" }, { task = "lint" }, { task = "test:py" }]
 
-[devcheck]
-run = [
-    { task = "check" },
-    { task = "test:py", args = ["-xvv"] },
-    { task = "shitcheck" },
-]
-
-[slowcheck]
+["check:slow:py"]
 run = [
     { task = "format:taplo" },
     { task = "format:black" },
     { task = "format:ruff" },
-    { task = "lint:taplo" },
     { task = "lint:ruff" },
     { task = "lint:import-linter" },
     { task = "lint:codespell" },
-    { task = "format:black", args = ["--check"] },
     { task = "lint:vulture" },
     { task = "lint:mypy" },
-    { task = "lint:pylint", args = ["src"] },
-    { task = "lint:pylint", args = ["--disable=duplicate-code", "tests"] },
+    { task = "lint:pylint" },
 ]

@@ -1,0 +1,6 @@
+[tools]
+taplo = "0.10.0"
+
+[tasks.format]
+description = "Format TOML files"
+run = "taplo format --config=.taplo.toml"
