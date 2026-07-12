@@ -39,7 +39,7 @@ run = ["pylint"]
 
 ["lint:pylint"]
 run = [
-    { task = "lint:_pylint", args = ["{{ env.EXTRA_PATHS }}", "src"] },
+    { task = "lint:_pylint", args = ["src"] },
     { task = "lint:_pylint", args = ["--disable=duplicate-code", "tests"] },
 ]
 
