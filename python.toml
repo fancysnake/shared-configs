@@ -5,7 +5,7 @@
 # SRC_PATHS: production & type checked Python code
 # TEST_PATHS: Python tests code
 # SCRIPT_PATHS: production & non-type checked Python code
-# TAPLO_PATHS: paths to TOML files to format
+# TOML_PATHS: paths to TOML files to format
 
 ## Format
 
@@ -19,7 +19,7 @@ run = "ruff check --fix {{ env.SRC_PATHS }} {{ env.SCRIPT_PATHS }} {{ env.TEST_P
 
 ["format:taplo"]
 description = "Format TOML files"
-run = "taplo format --config=.taplo.toml {{ env.TAPLO_PATHS }}"
+run = "taplo format --config=.taplo.toml {{ env.TOML_PATHS }}"
 
 ["format:py"]
 description = "Run all formatters"
@@ -54,7 +54,7 @@ run = "ruff check --no-fix {{ env.SRC_PATHS }} {{ env.SCRIPT_PATHS }} {{ env.TES
 
 ["lint:taplo"]
 description = "Check TOML files"
-run = "taplo lint --config=.taplo.toml {{ env.TAPLO_PATHS }}"
+run = "taplo lint --config=.taplo.toml {{ env.TOML_PATHS }}"
 
 ["lint:tingle"]
 run = "tingle check"
