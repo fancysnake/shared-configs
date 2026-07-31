@@ -103,7 +103,7 @@ description = "Run unit tests"
 run = { task = "test:unit", args = ["--cov=tests.unit", "--cov={{env.PACKAGE}}"] }
 env = { _.file = '.env.test' }
 
-[tasks."test:unit:cov:diff"]
+["test:unit:cov:diff"]
 description = "Show test coverage of unit tests for lines changed since main"
 run = [
     { task = "test:unit:cov" },
