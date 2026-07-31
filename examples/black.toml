@@ -1,0 +1,5 @@
+[tool.black]
+line-length = 88
+preview = true
+skip-magic-trailing-comma = true
+target-version = ['py314']

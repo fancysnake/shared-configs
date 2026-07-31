@@ -1,28 +1,39 @@
-# Tasks
+# Python Tasks
+
+# Env vars needed:
+# PACKAGE: Python package root
+# SRC_PATHS: production & type checked Python code
+# TEST_PATHS: Python tests code
+# SCRIPT_PATHS: production & non-type checked Python code
+# TAPLO_PATHS: paths to TOML files to format
 
 ## Format
 
 ["format:black"]
 description = "Format Python code with Black"
-run = "black {{ env.EXTRA_PATHS }} src tests"
+run = "black {{ env.SRC_PATHS }} {{ env.SCRIPT_PATHS }} {{ env.TEST_PATHS }}"
 
 ["format:ruff"]
 description = "Lint Python with Ruff and auto-fix violations"
-run = "ruff check --fix {{ env.EXTRA_PATHS }} src tests"
+run = "ruff check --fix {{ env.SRC_PATHS }} {{ env.SCRIPT_PATHS }} {{ env.TEST_PATHS }}"
 
 ["format:taplo"]
 description = "Format TOML files"
-run = "taplo format --config=.taplo.toml"
+run = "taplo format --config=.taplo.toml {{ env.TAPLO_PATHS }}"
 
-[format]
+["format:py"]
 description = "Run all formatters"
 run = [{ task = "format:taplo" }, { task = "format:black" }, { task = "format:ruff" }]
 
 ## Lint
 
+["lint:black"]
+description = "Check Python code with Black"
+run = "black --check {{ env.SRC_PATHS }} {{ env.SCRIPT_PATHS }} {{ env.TEST_PATHS }}"
+
 ["lint:codespell"]
 description = "Find typos in source and test files"
-run = "codespell {{ env.EXTRA_PATHS }} src tests/unit tests/integration"
+run = "codespell {{ env.SRC_PATHS }} {{ env.SCRIPT_PATHS }} {{ env.TEST_PATHS }}"
 
 ["lint:import-linter"]
 description = "Enforce GLIMPSE layer import rules"
@@ -30,52 +41,50 @@ run = "lint-imports --config=pyproject.toml"
 
 ["lint:mypy"]
 description = "Type-check Python source with mypy"
-run = "mypy src"
+run = "mypy {{ env.SRC_PATHS }}"
 env = { _.file = '.env.test' }
 
-["lint:_pylint"]
-description = "Run Pylint on source and tests (duplicate-code disabled for tests)"
-run = ["pylint"]
-
 ["lint:pylint"]
-run = [
-    { task = "lint:_pylint", args = ["src"] },
-    { task = "lint:_pylint", args = ["--disable=duplicate-code", "tests"] },
-]
+description = "Run Pylint on source and tests (duplicate-code disabled for tests)"
+run = ["pylint -j 0 {{ env.SRC_PATHS }} {{ env.SCRIPT_PATHS }} {{ env.TEST_PATHS }}"]
 
 ["lint:ruff"]
-run = ["ruff check --no-fix {{ env.EXTRA_PATHS }} src tests"]
+description = "Check Python with Ruff"
+run = "ruff check --no-fix {{ env.SRC_PATHS }} {{ env.SCRIPT_PATHS }} {{ env.TEST_PATHS }}"
 
 ["lint:taplo"]
-description = "Format TOML files"
-run = "taplo lint --config=.taplo.toml"
+description = "Check TOML files"
+run = "taplo lint --config=.taplo.toml {{ env.TAPLO_PATHS }}"
+
+["lint:tingle"]
+run = "tingle check"
 
 ["lint:vulture"]
 description = "Find dead Python code"
-run = "! vulture --config=pyproject.toml src | grep -v unused.variable"
+run = "! vulture --config=pyproject.toml {{ env.SRC_PATHS }} {{ env.SCRIPT_PATHS }} | grep -v unused.variable"
 
 ["lint:py"]
 description = "Run all linters"
 depends = [
-    { task = "lint:pylint" },
-    { task = "lint:mypy" },
-    { task = "lint:vulture" },
-    { task = "format:black", args = ["--check"] },
+    { task = "lint:black" },
     { task = "lint:codespell" },
     { task = "lint:import-linter" },
+    { task = "lint:mypy" },
+    { task = "lint:pylint" },
     { task = "lint:ruff" },
     { task = "lint:taplo" },
+    { task = "lint:vulture" },
 ]
 
 ## Dependencies
 
-["update:py"]
+["dep:upgrade:py"]
 description = "Update all dependencies: mise tools, pip, Poetry packages"
 run = [
     "mise upgrade",
     "pip install -U pip",
     "poetry update",
-    "deptry src tests",
+    "deptry {{ env.SRC_PATHS }} {{ env.SCRIPT_PATHS }} {{ env.TEST_PATHS }}",
     "pip-audit .",
     "poetry show -o",
 ]
@@ -86,18 +95,18 @@ run = [
 
 ["test:unit"]
 description = "Run unit tests"
-run = "pytest tests/unit"
+run = "pytest -n auto {{ env.TEST_PATHS }}/unit"
 env = { _.file = '.env.test' }
 
 ["test:unit:cov"]
 description = "Run unit tests"
-run = "pytest tests/unit --cov=tests.unit --cov={{env.PACKAGE}}"
+run = { task = "test:unit", args = ["--cov=tests.unit", "--cov={{env.PACKAGE}}"] }
 env = { _.file = '.env.test' }
 
-["test:int:cov:diff"]
-description = "Show test coverage of integration tests for lines changed since main"
+[tasks."test:unit:cov:diff"]
+description = "Show test coverage of unit tests for lines changed since main"
 run = [
-    "pytest tests/integration --cov={{env.PACKAGE}}.gates --cov={{env.PACKAGE}}.links --cov={{env.PACKAGE}}.adapters.web --cov=src/{{env.PACKAGE}}/templates/",
+    { task = "test:unit:cov" },
     "coverage xml",
     "diff-cover coverage.xml --compare-branch=main",
 ]
@@ -105,18 +114,18 @@ env = { _.file = '.env.test' }
 
 ["test:int"]
 description = "Run integration tests"
-run = "pytest tests/integration"
+run = "pytest -n auto {{ env.TEST_PATHS }}/integration"
 env = { _.file = '.env.test' }
 
 ["test:int:cov"]
 description = "Run integration tests"
-run = "pytest tests/integration --cov=tests.integration --cov={{env.PACKAGE}}"
+run = { task = "test:int", args = ["--cov=tests.integration", "--cov={{env.PACKAGE}}"] }
 env = { _.file = '.env.test' }
 
-["test:unit:cov:diff"]
-description = "Show test coverage of unit tests for lines changed since main"
+["test:int:cov:diff"]
+description = "Show test coverage of integration tests for lines changed since main"
 run = [
-    "pytest tests/unit --cov={{env.PACKAGE}}.mills",
+    { task = "test:int:cov" },
     "coverage xml",
     "diff-cover coverage.xml --compare-branch=main",
 ]
@@ -124,35 +133,28 @@ env = { _.file = '.env.test' }
 
 ["test:py"]
 description = "Run all Python tests"
-run = "pytest tests/integration tests/unit"
+run = "pytest -n auto {{ env.TEST_PATHS }}/integration {{ env.TEST_PATHS }}/unit"
 env = { _.file = '.env.test', COVERAGE_FILE = "{{ config_root }}/.coverage.unit" }
 
 ["test:py:cov"]
 description = "Run all Python tests"
-run = "pytest tests/integration tests/unit --cov"
+run = { task = "test:py", args = ["--cov"] }
 env = { _.file = '.env.test', COVERAGE_FILE = "{{ config_root }}/.coverage.unit" }
+
+["test:py:cov:diff"]
+description = "Show test coverage of integration tests for lines changed since main"
+run = [
+    { task = "test:py:cov" },
+    "coverage xml",
+    "diff-cover coverage.xml --compare-branch=main",
+]
+env = { _.file = '.env.test' }
 
 ## Complex
 
-[shitcheck]
-description = "Flag suspicious additions vs main (file:line; tests skip Any): noqa, Any, cast"
-run = [
-    "scripts/shitcheck.sh 'request.di.uow|nosec|noqa|type: ignore|Any|pylint|pragma|cast\\(|(^|[^[:alnum:]_])object([^[:alnum:]_]|$)' ':(glob)src/**/*.py'",
-    "scripts/shitcheck.sh 'nosec|noqa|pylint|pragma|\\.skip$|\\.xfail$|ANY' ':(glob)tests/**/*.py'",
-]
-
 ["check:py"]
-run = [{ task = "format" }, { task = "lint" }, { task = "test:py" }]
-
-["check:slow:py"]
 run = [
-    { task = "format:taplo" },
-    { task = "format:black" },
-    { task = "format:ruff" },
-    { task = "lint:ruff" },
-    { task = "lint:import-linter" },
-    { task = "lint:codespell" },
-    { task = "lint:vulture" },
-    { task = "lint:mypy" },
-    { task = "lint:pylint" },
+    { task = "format:py" },
+    { task = "lint:py" },
+    { task = "test:py", args = ["-xvv"] },
 ]

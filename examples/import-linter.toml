@@ -1,0 +1,118 @@
+[tool.importlinter]
+include_external_packages = "True"
+root_package = "<module>"
+
+# Explanation <source_modules> can't import <forbidden_modules>
+
+[[tool.importlinter.contracts]]
+name = "gates"
+type = "forbidden"
+source_modules = ["<module>.gates"]
+forbidden_modules = [
+    "<module>.links",
+    "<module>.inits",
+    "<module>.mills",
+    "<module>.specs",
+    "<module>.edges",
+]
+
+[[tool.importlinter.contracts]]
+name = "links"
+type = "forbidden"
+source_modules = ["<module>.links"]
+forbidden_modules = [
+    "<module>.gates",
+    "<module>.inits",
+    "<module>.mills",
+    "<module>.specs",
+    "<module>.edges",
+]
+
+[[tool.importlinter.contracts]]
+name = "inits"
+type = "forbidden"
+source_modules = ["<module>.inits"]
+forbidden_modules = ["<module>.specs", "<module>.edges"]
+
+
+[[tool.importlinter.contracts]]
+name = "mills"
+type = "forbidden"
+source_modules = ["<module>.mills"]
+forbidden_modules = [
+    "<module>.gates",
+    "<module>.links",
+    "<module>.inits",
+    "<module>.edges",
+]
+
+
+[[tool.importlinter.contracts]]
+name = "pacts"
+type = "forbidden"
+source_modules = ["<module>.pacts"]
+forbidden_modules = [
+    "<module>.gates",
+    "<module>.links",
+    "<module>.inits",
+    "<module>.mills",
+    "<module>.specs",
+    "<module>.edges",
+]
+
+
+[[tool.importlinter.contracts]]
+name = "specs"
+type = "forbidden"
+source_modules = ["<module>.specs"]
+forbidden_modules = [
+    "<module>.gates",
+    "<module>.links",
+    "<module>.inits",
+    "<module>.mills",
+    "<module>.edges",
+]
+
+
+[[tool.importlinter.contracts]]
+name = "edges"
+type = "forbidden"
+source_modules = ["<module>.edges"]
+forbidden_modules = [
+    "<module>.gates",
+    "<module>.links",
+    "<module>.inits",
+    "<module>.mills",
+    "<module>.pacts",
+    "<module>.specs",
+]
+
+[[tool.importlinter.contracts]]
+name = "inside-gates"
+type = "independence"
+modules = ["<module>.gates.*"]
+
+[[tool.importlinter.contracts]]
+name = "inside-links"
+type = "independence"
+modules = ["<module>.links.*"]
+
+[[tool.importlinter.contracts]]
+name = "inside-mills"
+type = "independence"
+modules = ["<module>.mills.*"]
+
+[[tool.importlinter.contracts]]
+name = "inside-pacts"
+type = "independence"
+modules = ["<module>.pacts.*"]
+
+[[tool.importlinter.contracts]]
+name = "inside-specs"
+type = "independence"
+modules = ["<module>.specs.*"]
+
+[[tool.importlinter.contracts]]
+name = "inside-edges"
+type = "independence"
+modules = ["<module>.edges.*"]
