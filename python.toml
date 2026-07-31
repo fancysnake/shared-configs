@@ -148,7 +148,7 @@ run = [
     "coverage xml",
     "diff-cover coverage.xml --compare-branch=main",
 ]
-env = { _.file = '.env.test' }
+env = { _.file = '.env.test', COVERAGE_FILE = "{{ config_root }}/.coverage.unit" }
 
 ## Complex
 
