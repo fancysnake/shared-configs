@@ -32,7 +32,7 @@ forbidden_modules = [
 name = "inits"
 type = "forbidden"
 source_modules = ["<module>.inits"]
-forbidden_modules = ["<module>.specs", "<module>.edges"]
+forbidden_modules = ["<module>.edges"]
 
 
 [[tool.importlinter.contracts]]
