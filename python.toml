@@ -108,7 +108,7 @@ description = "Show test coverage of unit tests for lines changed since main"
 run = [
     { task = "test:unit:cov" },
     "coverage xml",
-    "diff-cover coverage.xml --compare-branch=main",
+    "diff-cover coverage.xml --compare-branch=main --fail-under=100",
 ]
 env = { _.file = '.env.test' }
 
@@ -127,7 +127,7 @@ description = "Show test coverage of integration tests for lines changed since m
 run = [
     { task = "test:int:cov" },
     "coverage xml",
-    "diff-cover coverage.xml --compare-branch=main",
+    "diff-cover coverage.xml --compare-branch=main --fail-under=100",
 ]
 env = { _.file = '.env.test' }
 
@@ -146,7 +146,7 @@ description = "Show test coverage of integration tests for lines changed since m
 run = [
     { task = "test:py:cov" },
     "coverage xml",
-    "diff-cover coverage.xml --compare-branch=main",
+    "diff-cover coverage.xml --compare-branch=main --fail-under=100",
 ]
 env = { _.file = '.env.test' }
 
