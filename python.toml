@@ -81,7 +81,7 @@ depends = [
 ["dep:upgrade:py"]
 description = "Update all dependencies: mise tools, pip, Poetry packages"
 run = [
-    "mise upgrade",
+    "mise upgrade --minimum-release-age=7d",
     "pip install -U pip",
     "poetry update",
     "deptry {{ env.SRC_PATHS }} {{ env.SCRIPT_PATHS }} {{ env.TEST_PATHS }}",
