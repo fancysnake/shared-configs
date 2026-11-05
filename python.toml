@@ -6,6 +6,7 @@
 # TEST_PATHS: Python tests code
 # SCRIPT_PATHS: production & non-type checked Python code
 # TOML_PATHS: paths to TOML files to format
+# TEST_ENV_FILE: absolute path to the test env file, e.g. "{{ config_root }}/.env.test"
 
 ## Format
 
@@ -42,7 +43,7 @@ run = "lint-imports --config=pyproject.toml"
 ["lint:mypy"]
 description = "Type-check Python source with mypy"
 run = "mypy {{ env.SRC_PATHS }}"
-env = { _.file = '.env.test' }
+env = { _.file = '{{ env.TEST_ENV_FILE }}' }
 
 ["lint:pylint"]
 description = "Run Pylint on source and tests (duplicate-code disabled for tests)"
@@ -82,7 +83,6 @@ depends = [
 description = "Update all dependencies: mise tools, pip, Poetry packages"
 run = [
     "mise upgrade --bump --exclude python --minimum-release-age=7d --local",
-    "pip install -U pip",
     "poetry update",
     "deptry {{ env.SRC_PATHS }} {{ env.SCRIPT_PATHS }} {{ env.TEST_PATHS }}",
     "pip-audit .",
@@ -96,12 +96,12 @@ run = [
 ["test:unit"]
 description = "Run unit tests"
 run = "pytest -n auto {{ env.TEST_PATHS }}/unit"
-env = { _.file = '.env.test' }
+env = { _.file = '{{ env.TEST_ENV_FILE }}' }
 
 ["test:unit:cov"]
 description = "Run unit tests"
 run = { task = "test:unit", args = ["--cov=tests.unit", "--cov={{env.PACKAGE}}.mills"] }
-env = { _.file = '.env.test' }
+env = { _.file = '{{ env.TEST_ENV_FILE }}' }
 
 ["test:unit:cov:diff"]
 description = "Show test coverage of unit tests for lines changed since main"
@@ -110,17 +110,17 @@ run = [
     "coverage xml",
     "diff-cover coverage.xml --compare-branch=main --fail-under=100",
 ]
-env = { _.file = '.env.test' }
+env = { _.file = '{{ env.TEST_ENV_FILE }}' }
 
 ["test:int"]
 description = "Run integration tests"
 run = "pytest -n auto {{ env.TEST_PATHS }}/integration"
-env = { _.file = '.env.test' }
+env = { _.file = '{{ env.TEST_ENV_FILE }}' }
 
 ["test:int:cov"]
 description = "Run integration tests"
 run = { task = "test:int", args = ["--cov=tests.integration", "--cov={{env.PACKAGE}}"] }
-env = { _.file = '.env.test' }
+env = { _.file = '{{ env.TEST_ENV_FILE }}' }
 
 ["test:int:cov:diff"]
 description = "Show test coverage of integration tests for lines changed since main"
@@ -129,17 +129,17 @@ run = [
     "coverage xml",
     "diff-cover coverage.xml --compare-branch=main --fail-under=100",
 ]
-env = { _.file = '.env.test' }
+env = { _.file = '{{ env.TEST_ENV_FILE }}' }
 
 ["test:py"]
 description = "Run all Python tests"
 run = "pytest -n auto {{ env.TEST_PATHS }}/integration {{ env.TEST_PATHS }}/unit"
-env = { _.file = '.env.test' }
+env = { _.file = '{{ env.TEST_ENV_FILE }}' }
 
 ["test:py:cov"]
 description = "Run all Python tests"
 run = { task = "test:py", args = ["--cov"] }
-env = { _.file = '.env.test' }
+env = { _.file = '{{ env.TEST_ENV_FILE }}' }
 
 ["test:py:cov:diff"]
 description = "Show test coverage of integration tests for lines changed since main"
@@ -148,7 +148,7 @@ run = [
     "coverage xml",
     "diff-cover coverage.xml --compare-branch=main --fail-under=100",
 ]
-env = { _.file = '.env.test' }
+env = { _.file = '{{ env.TEST_ENV_FILE }}' }
 
 ## Complex
 
