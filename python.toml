@@ -62,7 +62,13 @@ run = "tingle check"
 
 ["lint:vulture"]
 description = "Find dead Python code"
-run = "! vulture --config=pyproject.toml {{ env.SRC_PATHS }} {{ env.SCRIPT_PATHS }} | grep -v unused.variable"
+run = """
+rc=0
+out=$(vulture --config=pyproject.toml {{ env.SRC_PATHS }} {{ env.SCRIPT_PATHS }}) || rc=$?
+# vulture exits 3 on findings; any other non-zero exit means it did not run.
+[ "$rc" -eq 0 ] || [ "$rc" -eq 3 ] || exit "$rc"
+! printf '%s' "$out" | grep -v unused.variable
+"""
 
 ["lint:py"]
 description = "Run all linters"
